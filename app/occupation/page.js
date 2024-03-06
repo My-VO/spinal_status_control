@@ -33,8 +33,14 @@ const columns = [
 
 
 const occupation = () => {
-    const [rows, setRows] = useState([])
-    const [data, setData] = useState(null)
+    // const [rows, setRows] = useState([])
+    // Test const rows
+    let rows = []
+    const [building, setBuilding] = useState(null)
+    // const [floor, setFloor] = useState([])
+    // Test const floor
+    // let floor = []
+    const [room, setRoom] = useState(null)
     const [loading, setLoading] = useState(true)
     let idRoom=null
 
@@ -43,7 +49,7 @@ const occupation = () => {
             try {
                 // Get API: geographicContext/space
                 const space = await axios.get(`${API}/v1/geographicContext/space`);
-                setData(space.data.children[0]);      
+                setBuilding(space.data.children[0]);      
                 
                 setLoading(false)
             } catch(error) {
@@ -54,36 +60,98 @@ const occupation = () => {
         
         fetchData()
 
-
+       
         
     }, [])
 
-    data && data.children &&
-        data.children.map((dataFloor) => {
-            dataFloor && dataFloor.children.map(async(dataRoom) => {
-                idRoom = dataRoom.dynamicId
-                // Get value from Get API: ROOM control_endpoint_list
-                let valueOccupation = await detailOccupation(idRoom).then(function(data) {
-                    console.log('data : ', data)
-                    return data
-                })
+    const floors =  building && building.children 
 
-                console.log('valueOccupation : ', valueOccupation) 
+    // Test loop for
+    // Get Floor
+    if (floors) {
+        for (let i = 0; i < floors.length; i++) {
+            // Get Room
+            const rooms = floors[i].children
 
+            console.log(`floor ${i} : ${floors[i].name}`)
+            console.log(`rooms ${i}: `)
+            console.log(rooms)
+
+            for (let j = 0; j < rooms.length; j++) {
+                const room = rooms[j].children
+
+                console.log(`room ${j} at floor ${i} : ${rooms[j].name}`)
+                console.log(rooms[j])            
+                console.log(`id room : ${rooms[j].dynamicId}`)   
+                
+                // Get API
+
+                // Test row with status control True
                 const newRow = {
-                    id: `${idRoom}`,
-                    room: `${dataRoom.name}`,
-                    floor: `${dataFloor.name}`,
+                    id: `${rooms[j].dynamicId}`,
+                    room: `${rooms[j].name}`,
+                    floor: `${floors[i].name}`,
                     // occupation: `${valueOccupation}`
-                    occupation: 'True'
+                    occupation: 'True'  
                 }
+                
+                rows = [...rows, newRow];
+            }
+        }
+    }
+    console.log('floors : ', floors)
+    
+    // useEffect(() => {
+    //     let isSubscribed = true;  
+    //     if(isSubscribed) {
+    //     childrenBuilding &&
+    //     childrenBuilding.map((dataFloor) => {
+          
+    //             console.log("dataFloor: ", dataFloor)
+    //             return setFloor([...floor, dataFloor])   
+           
+    //     }); }
 
-                setRows([...rows, newRow])
-            }) ;     
+
+    //     return () => isSubscribed = false;
+
+    // }, [childrenBuilding, floor]);
+
+    // console.log('floor : ', floor)
+
+    // // building && building.children &&
+    // // building.children.map((dataFloor) => {
+    //     dataFloor && dataFloor.children.map(async(dataRoom) => {
+    //         idRoom = dataRoom.dynamicId
+    //         // Get value from Get API: ROOM control_endpoint_list
+    //         let valueOccupation = await detailOccupation(idRoom).then(function(data) {
+    //             console.log('data : ', data)
+    //             return data
+    //         })
+
+    //         console.log('valueOccupation : ', valueOccupation) 
+
+    //         const newRow = {
+    //             id: `${idRoom}`,
+    //             room: `${dataRoom.name}`,
+    //             floor: `${dataFloor.name}`,
+    //             // occupation: `${valueOccupation}`
+    //             occupation: 'True'
+    //         }
+
+    //          setRows([...rows, newRow])
+          
+    //         // Test if break  
+    //         // if (!rows.includes(newRow)) {
+    //         //     setRows([...rows, newRow])
+    //         //     return;
+    //         // }              
             
-        });
+    //     }) ;     
+        
+    // // });
 
-    const uniqueRows = [... new Set(rows)];
+    // console.log('rows : ', rows)
 
     return (
         <div>
@@ -91,11 +159,13 @@ const occupation = () => {
                 <p>Chargement...</p>
             ) : (
                 <>
-                    <p>Nom du batiment: {data.name}</p>
+                    <p>Nom du batiment: {building.name}</p>
+
+                    
 
                     {<Box sx={{ height: 400, width: '100%' }}>
                         <DataGrid
-                            rows={uniqueRows}
+                            rows={rows}
                             columns={columns}
                             initialState={{
                             pagination: {
