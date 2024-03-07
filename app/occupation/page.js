@@ -34,6 +34,8 @@ const occupation = () => {
         fetchData();
     }, []);
 
+    //----------------------------------------
+    // Table
     const floors =  building && building.children;
     
     // Get rows
@@ -91,7 +93,9 @@ const occupation = () => {
     const arrayOfRows = rows.flatMap((innerArray) => innerArray);
     console.log('arrayOfRows : ', arrayOfRows)
 
+    //----------------------------------------
     // Charts
+    // Chart style
     const size = {
         width: 400,
         height: 200,
@@ -107,6 +111,7 @@ const occupation = () => {
         },
     }
 
+    // Chart of building
     const filteredRowsTrue = arrayOfRows.filter(row => row.occupation === 'true');
     const filteredRowsFalse = arrayOfRows.filter(row => row.occupation === 'false');
     const filteredRowsUndefined = arrayOfRows.filter(row => row.occupation === 'undefined');
