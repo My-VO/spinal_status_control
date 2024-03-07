@@ -44,9 +44,9 @@ const columns =  [
                     : (
                         <>
                             <Brightness1Icon
-                            style={{ color: 'gris', fontSize: 8, marginRight: 6 }}
+                            style={{ color: 'gray', fontSize: 8, marginRight: 6 }}
                             />
-                            <p style={{color : 'gris'}}>{valueControl}</p>
+                            <p style={{color : 'gray'}}>{valueControl}</p>
                         </>
                     ))
           },

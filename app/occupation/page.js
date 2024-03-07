@@ -5,6 +5,9 @@ import axios from 'axios'
 
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
 
 import columns from './columns';
 
@@ -88,6 +91,43 @@ const occupation = () => {
     const arrayOfRows = rows.flatMap((innerArray) => innerArray);
     console.log('arrayOfRows : ', arrayOfRows)
 
+    // Charts
+    const size = {
+        width: 400,
+        height: 200,
+    };
+
+    const pieParams = { height: 200, margin: { right: 150 } };
+    const palette = ['green', 'red', 'gray'];
+    const stylePie = {
+        [`& .${pieArcLabelClasses.root}`]: {
+        fill: 'white',
+        fontWeight: 'bold',
+        fontSize: 12
+        },
+    }
+
+    const filteredRowsTrue = arrayOfRows.filter(row => row.occupation === 'true');
+    const filteredRowsFalse = arrayOfRows.filter(row => row.occupation === 'false');
+    const filteredRowsUndefined = arrayOfRows.filter(row => row.occupation === 'undefined');
+
+    console.log('filteredRowsTrue : ', filteredRowsTrue)
+    
+    const data = [
+        { value: filteredRowsTrue.length, label: 'TRUE' },
+        { value: filteredRowsFalse.length, label: 'FALSE' },
+        { value: filteredRowsUndefined.length, label: 'UNDEFINED' },
+    ];
+
+    console.log('data : ', data)
+    
+    const TOTAL = data.map((item) => item.value).reduce((a, b) => a + b, 0);
+
+    const getArcLabel = (params) => {
+        const percent = params.value / TOTAL;
+        return `${(percent * 100).toFixed(0)}%`;
+    };
+
     return (
         <div>
             {loading ? (
@@ -109,6 +149,67 @@ const occupation = () => {
                             pageSizeOptions={[10]}
                         />
                     </Box>
+
+                    {/* Chart of building */}
+                    <Stack direction="row" width="100%" textAlign="center" spacing={2}>
+                        <Box>
+                            <Typography>{`building: ${building.name}`.toUpperCase()}</Typography>
+                            <PieChart
+                                colors={palette}
+                                series={[
+                                    {
+                                    arcLabel: getArcLabel,
+                                    data,
+                                    },
+                                ]}
+                                sx={stylePie}
+                                {...size}
+                                {...pieParams}
+                            />
+                        </Box>
+                    </Stack>
+
+                    {/* Chart of each floor */}
+                    <Stack direction="row" width="100%" textAlign="center" spacing={2}>
+
+                        {rows.map((floor) => {
+                            const filteredRoomTrue = floor.filter(room => room.occupation === 'true');
+                            const filteredRoomFalse = floor.filter(room => room.occupation === 'false');
+                            const filteredRoomUndefined = floor.filter(room => room.occupation === 'undefined');
+
+                            const dataFloor = [
+                                { value: filteredRoomTrue.length, label: 'TRUE' },
+                                { value: filteredRoomFalse.length, label: 'FALSE' },
+                                { value: filteredRoomUndefined.length, label: 'UNDEFINED' },
+                            ];
+
+                            const TOTALFLOOR = dataFloor && dataFloor.map((item) => item.value).reduce((a, b) => a + b, 0);
+
+                            const getArcLabelFloor = (params) => {
+                                const percent = params.value / TOTALFLOOR;
+                                return `${(percent * 100).toFixed(0)}%`;
+                            };
+
+                            const newLocal = <Box flexGrow={1}>
+                                <Typography>{`floor: ${floor[0].floor}`.toUpperCase()}</Typography>
+                                {dataFloor && <PieChart
+                                    colors={palette}
+                                    series={[
+                                        {
+                                            arcLabel: getArcLabelFloor,
+                                            arcLabelMinAngle: 45,
+                                            data: dataFloor,
+                                        },
+                                    ]}
+                                    sx={stylePie}
+                                    {...size}
+                                    {...pieParams} />}
+                            </Box>;
+                            return (
+                                newLocal
+                            )
+                        })}
+                    </Stack>
                 </>
             )}
         </div>
