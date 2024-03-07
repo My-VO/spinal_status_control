@@ -67,16 +67,16 @@ const occupation = () => {
           
                     
             };
-
-
-
+            
             const newRowsPromise = floors.flatMap((floor) => {
                 const rooms = floor.children;
                 const roomRowsPromise = rooms.map((room) => fetchRoomData(floor, room));
 
+                // Use Promise.all to wait for all asynchronous operations to complete before setting the rows state
                 return Promise.all(roomRowsPromise);
             });
 
+            // Use Promise.all to wait for all asynchronous operations to complete before setting the rows state
             Promise.all(newRowsPromise)
                 .then((newRows) => setRows(newRows))
                 .catch((error) => console.error(error));
