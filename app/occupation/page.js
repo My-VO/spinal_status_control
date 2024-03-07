@@ -6,152 +6,87 @@ import axios from 'axios'
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
 
-import detailOccupation from './detail';
+import columns from './columns';
 
 const API = process.env.NEXT_PUBLIC_API_DEVELOPERS_SPINALCOM;
 
-const columns = [
-    {
-        field: 'room',
-        headerName: 'ROOM',
-        width: 200,
-        editable: true
-    },
-    {
-        field: 'floor',
-        headerName: 'FLOOR',
-        width: 200,
-        editable: true
-    },
-    {
-        field: 'occupation',
-        headerName: 'OCCUPATION',
-        width: 200,
-        editable: true
-    }
-]
-
-
 const occupation = () => {
-    // const [rows, setRows] = useState([])
-    // Test const rows
-    let rows = []
-    const [building, setBuilding] = useState(null)
-    // const [floor, setFloor] = useState([])
-    // Test const floor
-    // let floor = []
-    const [room, setRoom] = useState(null)
-    const [loading, setLoading] = useState(true)
-    let idRoom=null
+    const [rows, setRows] = useState([]);
+    const [building, setBuilding] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchData = async() => {
+        const fetchData = async () => {
             try {
                 // Get API: geographicContext/space
                 const space = await axios.get(`${API}/v1/geographicContext/space`);
                 setBuilding(space.data.children[0]);      
-                
-                setLoading(false)
-            } catch(error) {
-                console.log(error)
-                setLoading(false)
+                setLoading(false);
+            } catch (error) {
+                console.error(error);
+                setLoading(false);
             }
-        }
+        };
         
-        fetchData()
+        fetchData();
+    }, []);
 
-       
-        
-    }, [])
-
-    const floors =  building && building.children 
-
-    // Test loop for
-    // Get Floor
-    if (floors) {
-        for (let i = 0; i < floors.length; i++) {
-            // Get Room
-            const rooms = floors[i].children
-
-            console.log(`floor ${i} : ${floors[i].name}`)
-            console.log(`rooms ${i}: `)
-            console.log(rooms)
-
-            for (let j = 0; j < rooms.length; j++) {
-                const room = rooms[j].children
-
-                console.log(`room ${j} at floor ${i} : ${rooms[j].name}`)
-                console.log(rooms[j])            
-                console.log(`id room : ${rooms[j].dynamicId}`)   
-                
-                // Get API
-
-                // Test row with status control True
-                const newRow = {
-                    id: `${rooms[j].dynamicId}`,
-                    room: `${rooms[j].name}`,
-                    floor: `${floors[i].name}`,
-                    // occupation: `${valueOccupation}`
-                    occupation: 'True'  
-                }
-                
-                rows = [...rows, newRow];
-            }
-        }
-    }
-    console.log('floors : ', floors)
+    const floors =  building && building.children;
     
-    // useEffect(() => {
-    //     let isSubscribed = true;  
-    //     if(isSubscribed) {
-    //     childrenBuilding &&
-    //     childrenBuilding.map((dataFloor) => {
+    // Get rows
+    useEffect(() => {
+        if (floors) {
+            const fetchRoomData = async (floor, room) => {
+
+                let valueOccupation = 'undefined';
+
+                // Get API: control of room
+                try {
+                    const response = await axios.get(`${API}/v1/room/${room.dynamicId}/control_endpoint_list`);
+                    
+                    if (response.data.length === 1) {
+                        const statutOcc = response.data[0].endpoints[4].currentValue;
+                        valueOccupation = valueOccupation.replace(/undefined/g, statutOcc.toString());
+                    }
+
+                    setLoading(false);
+                } catch (error) {
+                    console.log(error);
+                    setLoading(false);
+                }
+
+                // Get new row
+                const newRow = valueOccupation && {
+                    id: `${room.dynamicId}`,
+                    room: `${room.name}`,
+                    floor: `${floor.name}`,
+                    occupation: `${valueOccupation}`
+                };
+
+                return newRow;
           
-    //             console.log("dataFloor: ", dataFloor)
-    //             return setFloor([...floor, dataFloor])   
-           
-    //     }); }
+                    
+            };
 
 
-    //     return () => isSubscribed = false;
 
-    // }, [childrenBuilding, floor]);
+            const newRowsPromise = floors.flatMap((floor) => {
+                const rooms = floor.children;
+                const roomRowsPromise = rooms.map((room) => fetchRoomData(floor, room));
 
-    // console.log('floor : ', floor)
+                return Promise.all(roomRowsPromise);
+            });
 
-    // // building && building.children &&
-    // // building.children.map((dataFloor) => {
-    //     dataFloor && dataFloor.children.map(async(dataRoom) => {
-    //         idRoom = dataRoom.dynamicId
-    //         // Get value from Get API: ROOM control_endpoint_list
-    //         let valueOccupation = await detailOccupation(idRoom).then(function(data) {
-    //             console.log('data : ', data)
-    //             return data
-    //         })
+            Promise.all(newRowsPromise)
+                .then((newRows) => setRows(newRows))
+                .catch((error) => console.error(error));
+        }
+    }, [floors]);
 
-    //         console.log('valueOccupation : ', valueOccupation) 
-
-    //         const newRow = {
-    //             id: `${idRoom}`,
-    //             room: `${dataRoom.name}`,
-    //             floor: `${dataFloor.name}`,
-    //             // occupation: `${valueOccupation}`
-    //             occupation: 'True'
-    //         }
-
-    //          setRows([...rows, newRow])
-          
-    //         // Test if break  
-    //         // if (!rows.includes(newRow)) {
-    //         //     setRows([...rows, newRow])
-    //         //     return;
-    //         // }              
-            
-    //     }) ;     
-        
-    // // });
-
-    // console.log('rows : ', rows)
+    console.log('rows : ', rows);
+    // Convert an array of objects within an array to an array of objects
+    const arrayOfRows = rows.flatMap((innerArray) => innerArray);
+    console.log('arrayOfRows : ', arrayOfRows)
 
     return (
         <div>
@@ -159,28 +94,25 @@ const occupation = () => {
                 <p>Chargement...</p>
             ) : (
                 <>
-                    <p>Nom du batiment: {building.name}</p>
-
-                    
-
-                    {<Box sx={{ height: 400, width: '100%' }}>
+                    <p>Nom du bâtiment: {building.name}</p>
+                    <Box sx={{ height: 400, width: '100%' }}>
                         <DataGrid
-                            rows={rows}
+                            rows={arrayOfRows}
                             columns={columns}
                             initialState={{
-                            pagination: {
-                                paginationModel: {
-                                pageSize: 5,
+                                pagination: {
+                                    paginationModel: {
+                                        pageSize: 5,
+                                    },
                                 },
-                            },
                             }}
                             pageSizeOptions={[10]}
                         />
-                    </Box>}
+                    </Box>
                 </>
             )}
         </div>
-    )
-}
+    );
+};
 
-export default occupation
+export default occupation;
