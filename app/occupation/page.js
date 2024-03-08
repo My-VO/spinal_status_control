@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-import Box from '@mui/material/Box';
+import { Box, Card } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
@@ -107,7 +107,7 @@ const occupation = () => {
         [`& .${pieArcLabelClasses.root}`]: {
         fill: 'white',
         fontWeight: 'bold',
-        fontSize: 12
+        fontSize: 16
         },
     }
 
@@ -119,9 +119,9 @@ const occupation = () => {
     console.log('filteredRowsTrue : ', filteredRowsTrue)
     
     const data = [
-        { value: filteredRowsTrue.length, label: 'TRUE' },
-        { value: filteredRowsFalse.length, label: 'FALSE' },
-        { value: filteredRowsUndefined.length, label: 'UNDEFINED' },
+        { value: filteredRowsTrue.length, label: 'True' },
+        { value: filteredRowsFalse.length, label: 'False' },
+        { value: filteredRowsUndefined.length, label: 'Undefined' },
     ];
 
     console.log('data : ', data)
@@ -138,9 +138,28 @@ const occupation = () => {
             {loading ? (
                 <p>Chargement...</p>
             ) : (
-                <>
+                <Box  
+                    component="main"
+                    className="MainContent"
+                    sx={{
+                    px: { xs: 2, md: 6 },
+                    pt: {
+                        xs: 'calc(12px + var(--Header-height))',
+                        sm: 'calc(12px + var(--Header-height))',
+                        md: 3,
+                    },
+                    pb: { xs: 2, sm: 2, md: 3 },
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minWidth: 0,
+                    gap: 1,
+                    bgcolor: '#d6e0e4'
+                    }}>
                     <p>Nom du bâtiment: {building.name}</p>
-                    <Box sx={{ height: 400, width: '100%' }}>
+                    <Box sx={{ 
+                            height: 400, 
+                            width: '100%',}}>
                         <DataGrid
                             rows={arrayOfRows}
                             columns={columns}
@@ -155,67 +174,104 @@ const occupation = () => {
                         />
                     </Box>
 
-                    {/* Chart of building */}
-                    <Stack direction="row" width="100%" textAlign="center" spacing={2}>
-                        <Box>
-                            <Typography>{`building: ${building.name}`.toUpperCase()}</Typography>
-                            <PieChart
-                                colors={palette}
-                                series={[
-                                    {
-                                    arcLabel: getArcLabel,
-                                    data,
-                                    },
-                                ]}
-                                sx={stylePie}
-                                {...size}
-                                {...pieParams}
-                            />
-                        </Box>
-                    </Stack>
-
-                    {/* Chart of each floor */}
-                    <Stack direction="row" width="100%" textAlign="center" spacing={2}>
-
-                        {rows.map((floor) => {
-                            const filteredRoomTrue = floor.filter(room => room.occupation === 'true');
-                            const filteredRoomFalse = floor.filter(room => room.occupation === 'false');
-                            const filteredRoomUndefined = floor.filter(room => room.occupation === 'undefined');
-
-                            const dataFloor = [
-                                { value: filteredRoomTrue.length, label: 'TRUE' },
-                                { value: filteredRoomFalse.length, label: 'FALSE' },
-                                { value: filteredRoomUndefined.length, label: 'UNDEFINED' },
-                            ];
-
-                            const TOTALFLOOR = dataFloor && dataFloor.map((item) => item.value).reduce((a, b) => a + b, 0);
-
-                            const getArcLabelFloor = (params) => {
-                                const percent = params.value / TOTALFLOOR;
-                                return `${(percent * 100).toFixed(0)}%`;
-                            };
-
-                            const newLocal = <Box flexGrow={1}>
-                                <Typography>{`floor: ${floor[0].floor}`.toUpperCase()}</Typography>
-                                {dataFloor && <PieChart
+                    {/* Chart of building */}   
+                    <Stack 
+                        sx={{
+                            direction: "row",
+                            width: "100%",
+                            justifyContent: "space-between",
+                            flexFlow: "row wrap",
+                            spacing: 2,
+                            marginTop: 4,
+                        }}
+                    >
+                        <Card 
+                            sx={{
+                                textAlign: "left",
+                                padding: 4,
+                                margin: 2, 
+                                bgcolor: '#f8faf9'
+                            }}>
+                            <Box>
+                                <Typography sx={{paddingBottom: 2}}><strong>{`status building: ${building.name}`.toUpperCase()}</strong></Typography>
+                                <PieChart
                                     colors={palette}
                                     series={[
                                         {
-                                            arcLabel: getArcLabelFloor,
-                                            arcLabelMinAngle: 45,
-                                            data: dataFloor,
+                                        arcLabel: getArcLabel,
+                                        data,
                                         },
                                     ]}
                                     sx={stylePie}
                                     {...size}
-                                    {...pieParams} />}
-                            </Box>;
-                            return (
-                                newLocal
-                            )
-                        })}
+                                    {...pieParams}
+                                />
+                            </Box>
+                        </Card>
                     </Stack>
-                </>
+
+                    {/* Chart of each floor */}
+                    
+                    <Stack 
+                        sx={{
+                            direction: "row",
+                            width: "100%",
+                            justifyContent: "space-between",
+                            flexFlow: "row wrap",
+                            spacing: 2,
+                            marginTop: 4,
+                        }}
+                    >
+                       
+                            {rows.map((floor) => {
+                                const filteredRoomTrue = floor.filter(room => room.occupation === 'true');
+                                const filteredRoomFalse = floor.filter(room => room.occupation === 'false');
+                                const filteredRoomUndefined = floor.filter(room => room.occupation === 'undefined');
+
+                                const dataFloor = [
+                                    { value: filteredRoomTrue.length, label: 'True' },
+                                    { value: filteredRoomFalse.length, label: 'False' },
+                                    { value: filteredRoomUndefined.length, label: 'Undefined' },
+                                ];
+
+                                const TOTALFLOOR = dataFloor && dataFloor.map((item) => item.value).reduce((a, b) => a + b, 0);
+
+                                const getArcLabelFloor = (params) => {
+                                    const percent = params.value / TOTALFLOOR;
+                                    return `${(percent * 100).toFixed(0)}%`;
+                                };
+
+                                const newLocal = 
+                                    <Card
+                                        sx={{
+                                            textAlign: "left",
+                                            padding: 4,
+                                            margin: 2, 
+                                            bgcolor: '#f8faf9'
+                                        }}
+                                    >
+                                        <Box flexGrow={1}>
+                                            <Typography sx={{paddingBottom: 2}}><strong>{`status floor: ${floor[0].floor}`.toUpperCase()}</strong></Typography>
+                                                {dataFloor && <PieChart
+                                                colors={palette}
+                                                series={[
+                                                    {
+                                                        arcLabel: getArcLabelFloor,
+                                                        arcLabelMinAngle: 45,
+                                                        data: dataFloor,
+                                                    },
+                                                ]}
+                                                sx={stylePie}
+                                                {...size}
+                                                {...pieParams} />}
+                                        </Box>
+                                    </Card>
+                                return (
+                                    newLocal
+                                )
+                            })}  
+                    </Stack>
+                </Box>
             )}
         </div>
     );
