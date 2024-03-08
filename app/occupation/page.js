@@ -9,11 +9,24 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
 
+import { makeStyles } from '@mui/styles';
+
 import columns from './columns';
 
 const API = process.env.NEXT_PUBLIC_API_DEVELOPERS_SPINALCOM;
 
+// const useStyles = makeStyles({
+//     customHeader: {
+//       // Your custom styles for the header cells
+//       fontWeight: 'bold',
+//       color: 'blue',
+//       // Add more styles as needed
+//     },
+// });
+
 const occupation = () => {
+    // const classes = useStyles();
+
     const [rows, setRows] = useState([]);
     const [building, setBuilding] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -101,7 +114,7 @@ const occupation = () => {
         height: 200,
     };
 
-    const pieParams = { height: 200, margin: { right: 150 } };
+    const pieParams = { height: 200, m: { right: 150 } };
     const palette = ['green', 'red', 'gray'];
     const stylePie = {
         [`& .${pieArcLabelClasses.root}`]: {
@@ -157,22 +170,38 @@ const occupation = () => {
                     bgcolor: '#d6e0e4'
                     }}>
                     <p>Nom du bâtiment: {building.name}</p>
-                    <Box sx={{ 
-                            height: 400, 
-                            width: '100%',}}>
-                        <DataGrid
-                            rows={arrayOfRows}
-                            columns={columns}
-                            initialState={{
-                                pagination: {
-                                    paginationModel: {
-                                        pageSize: 5,
+
+                    {/* Table */}
+                    <Card
+                        sx={{
+                            // textAlign: "left",
+                            // p: 4,
+                            m: 2, 
+                            bgcolor: '#f8faf9'
+                        }}
+                    >
+                        <Box sx={{ 
+                                height: 400, 
+                                width: '100%',
+                                '& .super-app-theme--header': {
+                                    backgroundColor: '#d6e0e459',
+                                    // fontWeight: 'bolder',
+                                    // color: 'blue',
+                                  },}}>
+                            <DataGrid
+                                rows={arrayOfRows}
+                                columns={columns}
+                                initialState={{
+                                    pagination: {
+                                        paginationModel: {
+                                            pageSize: 5,
+                                        },
                                     },
-                                },
-                            }}
-                            pageSizeOptions={[10]}
-                        />
-                    </Box>
+                                }}
+                                pageSizeOptions={[10]}
+                            />
+                        </Box>
+                    </Card>
 
                     {/* Chart of building */}   
                     <Stack 
@@ -182,18 +211,18 @@ const occupation = () => {
                             justifyContent: "space-between",
                             flexFlow: "row wrap",
                             spacing: 2,
-                            marginTop: 4,
+                            mt: 4,
                         }}
                     >
                         <Card 
                             sx={{
                                 textAlign: "left",
-                                padding: 4,
-                                margin: 2, 
+                                p: 4,
+                                m: 2, 
                                 bgcolor: '#f8faf9'
                             }}>
                             <Box>
-                                <Typography sx={{paddingBottom: 2}}><strong>{`status building: ${building.name}`.toUpperCase()}</strong></Typography>
+                                <Typography sx={{pBottom: 2}}><strong>{`status building: ${building.name}`.toUpperCase()}</strong></Typography>
                                 <PieChart
                                     colors={palette}
                                     series={[
@@ -219,7 +248,7 @@ const occupation = () => {
                             justifyContent: "space-between",
                             flexFlow: "row wrap",
                             spacing: 2,
-                            marginTop: 4,
+                            mt: 4,
                         }}
                     >
                        
@@ -245,13 +274,13 @@ const occupation = () => {
                                     <Card
                                         sx={{
                                             textAlign: "left",
-                                            padding: 4,
-                                            margin: 2, 
+                                            p: 4,
+                                            m: 2, 
                                             bgcolor: '#f8faf9'
                                         }}
                                     >
                                         <Box flexGrow={1}>
-                                            <Typography sx={{paddingBottom: 2}}><strong>{`status floor: ${floor[0].floor}`.toUpperCase()}</strong></Typography>
+                                            <Typography sx={{pb: 2}}><strong>{`status floor: ${floor[0].floor}`.toUpperCase()}</strong></Typography>
                                                 {dataFloor && <PieChart
                                                 colors={palette}
                                                 series={[
