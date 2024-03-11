@@ -5,21 +5,21 @@ const columns =  [
         field: 'room',
         headerClassName: 'super-app-theme--header',
         headerName: 'ROOM',
-        flex: 2,
+        flex: 4,
         renderCell: (params) => (params.value).toUpperCase(),
     },
     {
         field: 'floor',
         headerClassName: 'super-app-theme--header',
         headerName: 'FLOOR',
-        flex: 1,
+        flex: 2,
         renderCell: (params) => (params.value).toUpperCase(),
     },
     {
         field: 'occupation',
         headerClassName: 'super-app-theme--header',
         headerName: 'OCCUPATION',
-        flex: 1,
+        flex: 1.2,
         renderCell: (params) => {
             const valueControl = params.row.occupation
             .replaceAll(/(\r\n|\n|\r)/gm, '')

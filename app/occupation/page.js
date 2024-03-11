@@ -3,31 +3,20 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-import { Box, Card } from '@mui/material';
+import { Box, Card, CardHeader, CardContent, CardMedia} from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
 
-import { makeStyles } from '@mui/styles';
-
 import columns from './columns';
 
 const API = process.env.NEXT_PUBLIC_API_DEVELOPERS_SPINALCOM;
 
-// const useStyles = makeStyles({
-//     customHeader: {
-//       // Your custom styles for the header cells
-//       fontWeight: 'bold',
-//       color: 'blue',
-//       // Add more styles as needed
-//     },
-// });
-
 const occupation = () => {
-    // const classes = useStyles();
 
     const [rows, setRows] = useState([]);
+    const [buildingNames, setBuildingNames] = useState();
     const [building, setBuilding] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -36,7 +25,8 @@ const occupation = () => {
             try {
                 // Get API: geographicContext/space
                 const space = await axios.get(`${API}/v1/geographicContext/space`);
-                setBuilding(space.data.children[0]);      
+                setBuilding(space.data.children[0]);     
+                setBuildingNames(space.data.children.map(building => building.name));
                 setLoading(false);
             } catch (error) {
                 console.error(error);
@@ -169,14 +159,50 @@ const occupation = () => {
                     gap: 1,
                     bgcolor: '#d6e0e4'
                     }}>
-                    <p>Nom du bâtiment: {building.name}</p>
+                    <Stack sx={{
+                            width: "100%",
+                            display: 'flex',
+                            flexDirection: 'row',
+                            direction: "row",
+                            justifyContent: 'space-between',
+                            p: 1
+                    }}>
+                        <Card sx={{
+                            display: "flex",
+                            direction: "row",
+                            alignItems: "center",
+                            width: {
+                                xs: '47vw',
+                            },
+                            maxWidth: "400px",                     
+                        }}>
+                            <CardMedia
+                                component="img"
+                                sx={{ width: 151, bgcolor: '#11202D' }}
+                                image="https://lh3.googleusercontent.com/UqyApYeawEnU6w2-WM0Mz7n3kS1Zd6TbAsUORJXXX91NgzGWxTLhbZHUXtsQgU9NeQ8evw=w16383"
+                            />
+                            <Typography sx={{ pl: 2, fontWeight: "bold" }}>STATUS OCCUPATION</Typography>
+                        </Card>
+                        <Card  
+                            sx={{
+                                display: "flex",
+                                direction: "row",
+                                alignItems: "center",
+                                width: {
+                                    xs: '40vw',
+                                },
+                                maxWidth: "400px",
+                                bgcolor: "#11202D"                     
+                            }}
+                        >
+                            <Typography sx={{ pl: 2, color: "#FFFFFF", fontWeight: "bold"}}>{`Building: ${building.name}`.toUpperCase()}</Typography>
+                        </Card>
+                    </Stack>
 
                     {/* Table */}
                     <Card
                         sx={{
-                            // textAlign: "left",
-                            // p: 4,
-                            m: 2, 
+                            m: 1, 
                             bgcolor: '#f8faf9'
                         }}
                     >
@@ -184,10 +210,12 @@ const occupation = () => {
                                 height: 400, 
                                 width: '100%',
                                 '& .super-app-theme--header': {
-                                    backgroundColor: '#d6e0e459',
-                                    // fontWeight: 'bolder',
-                                    // color: 'blue',
-                                  },}}>
+                                    backgroundColor: '#d6e0e459'
+                                },
+                                '.MuiDataGrid-columnHeaderTitle': { 
+                                fontWeight: 'bold !important',
+                                overflow: 'visible !important'
+                                }}}>
                             <DataGrid
                                 rows={arrayOfRows}
                                 columns={columns}
@@ -211,18 +239,24 @@ const occupation = () => {
                             justifyContent: "space-between",
                             flexFlow: "row wrap",
                             spacing: 2,
-                            mt: 4,
                         }}
                     >
                         <Card 
                             sx={{
                                 textAlign: "left",
+                                width: '100%',
                                 p: 4,
-                                m: 2, 
-                                bgcolor: '#f8faf9'
+                                m: 1, 
+                                bgcolor: '#f8faf9',
+                                direction: "column",
                             }}>
-                            <Box>
-                                <Typography sx={{pBottom: 2}}><strong>{`status building: ${building.name}`.toUpperCase()}</strong></Typography>
+                            <CardHeader 
+                            titleTypographyProps={{ variant: "h7" }} 
+                            title={`status building`.toUpperCase()}>                               
+                            </CardHeader>
+                            <CardContent 
+                                sx={{display: 'flex', justifyContent: "center"}}
+                            >
                                 <PieChart
                                     colors={palette}
                                     series={[
@@ -235,7 +269,12 @@ const occupation = () => {
                                     {...size}
                                     {...pieParams}
                                 />
-                            </Box>
+                                <Typography 
+                                color="textSecondary" 
+                                gutterBottom>
+                                   <strong>{`${building.name}`.toUpperCase()}</strong>
+                                </Typography>
+                            </CardContent>
                         </Card>
                     </Stack>
 
@@ -248,7 +287,6 @@ const occupation = () => {
                             justifyContent: "space-between",
                             flexFlow: "row wrap",
                             spacing: 2,
-                            mt: 4,
                         }}
                     >
                        
@@ -275,25 +313,46 @@ const occupation = () => {
                                         sx={{
                                             textAlign: "left",
                                             p: 4,
-                                            m: 2, 
-                                            bgcolor: '#f8faf9'
+                                            m: 1, 
+                                            bgcolor: '#f8faf9',
+                                            width: {
+                                                xs: '100vw',
+                                                md: '47vw',
+                                                lg: '30vw',
+                                            },
+                                            direction: "column",
                                         }}
                                     >
-                                        <Box flexGrow={1}>
-                                            <Typography sx={{pb: 2}}><strong>{`status floor: ${floor[0].floor}`.toUpperCase()}</strong></Typography>
-                                                {dataFloor && <PieChart
-                                                colors={palette}
-                                                series={[
-                                                    {
-                                                        arcLabel: getArcLabelFloor,
-                                                        arcLabelMinAngle: 45,
-                                                        data: dataFloor,
-                                                    },
-                                                ]}
-                                                sx={stylePie}
-                                                {...size}
-                                                {...pieParams} />}
-                                        </Box>
+                                         <CardHeader 
+                                            titleTypographyProps={{ variant: "h7" }} 
+                                            title={`status floor`.toUpperCase()}>                               
+                                        </CardHeader>
+                                        <CardContent 
+                                          sx={{display: 'flex', 
+                                          justifyContent: "center"}}
+                                        >
+
+                                            <Typography 
+                                            color="textSecondary" 
+                                            gutterBottom
+                                            width="10vh"
+                                            >
+                                                <strong>{`${floor[0].floor}`.toUpperCase()}</strong>
+                                            </Typography>
+                                            {dataFloor && <PieChart
+                                            colors={palette}
+                                            series={[
+                                                {
+                                                    arcLabel: getArcLabelFloor,
+                                                    arcLabelMinAngle: 45,
+                                                    data: dataFloor,
+                                                },
+                                            ]}
+                                            sx={stylePie}
+                                            {...size}
+                                            {...pieParams} />}
+                                            
+                                        </CardContent>
                                     </Card>
                                 return (
                                     newLocal
