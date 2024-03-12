@@ -1,4 +1,3 @@
-import { Inter } from "next/font/google";
 import CssBaseline from '@mui/material/CssBaseline';
 
 export const metadata = {
